@@ -1,9 +1,15 @@
+import os
+
 from telebot.async_telebot import AsyncTeleBot
 import asyncio
+import os
 
 from telebot.types import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 
-bot = AsyncTeleBot('6192388726:AAFYAAJr01ir3klolGA36mVkXMyIomuMaQY')
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
+TOKEN = os.getenv('TOKEN')
+bot = AsyncTeleBot(TOKEN, parse_mode='HTML')
 
 
 def generate_markup(buttons, n):
@@ -23,6 +29,32 @@ def generate_markup2(buttons):
 async def send_botton(message):
     await bot.send_message(message.from_user.id, 'Меню кнопок',
                            reply_markup=generate_markup(['ПЕРВАЯ КНОПКА', 'ВТОРАЯ КНОПКА', 'ТРЕТЬЯ КНОПКА'], 3))
+
+
+@bot.message_handler(commands=['text'])
+async def send_un_text(message):
+    print(message.from_user.id)
+    await bot.send_message(message.from_user.id, '<i>курсив</i>')
+    await bot.send_message(message.from_user.id, '<b>жирный</b>')
+    await bot.send_message(message.from_user.id, '<u>подчеркнутый</u>')
+    await bot.send_message(message.from_user.id, '<ins>подчеркнутый</ins>')
+    await bot.send_message(message.from_user.id, '<s>зачёркнутый</s>')
+    await bot.send_message(message.from_user.id, '<strike>зачёркнутый</strike>')
+    await bot.send_message(message.from_user.id, '<del>зачёркнутый</del>')
+    await bot.send_message(message.from_user.id, '<code>моноширный</code>')
+    await bot.send_message(message.from_user.id, '<pre>моноширный</pre>')
+    await bot.send_message(message.from_user.id, '<tg-spoiler>спойлер</tg-spoiler>')
+    await bot.send_message(message.from_user.id, '<a href="https://github.com/kate220608/test3/blob/main/main.py">ссылка</a>')
+    await bot.send_message(message.from_user.id, '<a href="tg://user?id=1006407409">яяяяяяяяя</a>')
+
+
+@bot.message_handler(commands=['time'])
+async def send_time(message):
+    bot_message = await bot.send_message(message.from_user.id, 'Начался таймер 5 секунд')
+    for i in range(1, 6):
+        await asyncio.sleep(1)
+        await bot.edit_message_text(f"{i} секунды прошло", message.from_user.id, bot_message.id)
+    await bot.delete_message(message.from_user.id, bot_message.id)
 
 
 @bot.message_handler(commands=['choice2'])
@@ -101,7 +133,7 @@ async def echo_message(message):
     elif 'шутк' in text_message or 'анекдот' in text_message or 'смех' in text_message:
         await bot.reply_to(message, 'хахахахахахахахаха')
     else:
-        await bot.reply_to(message, message.text)
+        await bot.delete_message(message.from_user.id, message.id)
 
 
 asyncio.run(bot.polling())
